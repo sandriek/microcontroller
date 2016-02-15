@@ -23,7 +23,7 @@ int main(void)
     {
 		for(int i = 0; i<11; i++)
 		{
-		//wait(1000);
+		wait(1000);
 		PORTD = ledAni2[i];
 		int j = 10;
 		}
