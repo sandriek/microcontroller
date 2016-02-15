@@ -22,11 +22,11 @@ int main(void)
     /* Replace with your application code */
     while (1) 
     {
-	if (PORTC.0 == 0){
+	
 	PORTD = 0b10000000;
-	}
-	if (PORTC.0 == 1){
+	wait(500);
 	PORTD = 0b01000000;
+	wait(500);
     }
 
 }
