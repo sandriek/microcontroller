@@ -22,10 +22,10 @@ void init(void)
 {
 	DDRD |= Bit(7);
 
-	OCR2 = 250;
+	OCR2 = 125;
 	TIMSK |= Bit(7);
 	sei();
-	TCCR2 = 0b00001101;
+	TCCR2 = 0b00001011;
 }
 
 ISR(TIMER2_COMP_vect)
