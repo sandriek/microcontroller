@@ -32,13 +32,13 @@ ISR(TIMER2_COMP_vect)
 {
 	msCount ++;
 
-	if(LEDswitch && msCount == 15)
+	if(LEDswitch && msCount == 25)
 	{
 		LEDswitch = 0;
 		msCount = 0;
 		ToggleD7();
 	}
-	else if(!LEDswitch && msCount == 25)
+	else if(!LEDswitch && msCount == 15)
 	{
 		LEDswitch = 1;
 		msCount = 0;
