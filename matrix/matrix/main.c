@@ -125,24 +125,25 @@ Version :    	DMK, Initial code
 	twi_tx(0xE0);	// Display I2C address + R/W bit
 	twi_tx(0x81);	// Display OFF - Blink On
 	twi_stop();
-
+	for(int i = 0; i <= 14; i += 2){
+	twi_start();
+	twi_tx(0xE0);	// Display I2C addres + R/W bit
+	twi_tx(i);	// Address
+	twi_tx(0x00);	// data
+	twi_stop();
+	}
+	int i = 1;
 	while (1)
 	{
-		twi_start();
-		twi_tx(0xE0);	// Display I2C addres + R/W bit
-		twi_tx(0x00);	// Address
-		twi_tx(0x12);	// data
-		twi_stop();
 
-		wait(500);	
-
-		twi_start();
-		twi_tx(0xE0);	// Display I2C addres + R/W bit
-		twi_tx(0x00);	// Address
-		twi_tx(0x00);	// data
-		twi_stop();	
-
-		wait(500);
+				wait(500);
+				twi_start();
+				twi_tx(0xE0);	// Display I2C addres + R/W bit
+				twi_tx(0x0E);	// Address
+				twi_tx(i);	// data
+				twi_stop();
+				i = i << 1;
+				wait(500);
 	}
 
 	return 1;

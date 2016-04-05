@@ -3,29 +3,29 @@ matrix.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  000001c0  2**0
+  0 .data         00000000  00800100  00800100  000001dc  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         0000016c  00000000  00000000  00000054  2**1
+  1 .text         00000188  00000000  00000000  00000054  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      00000030  00000000  00000000  000001c0  2**0
+  2 .comment      00000030  00000000  00000000  000001dc  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000001f0  2**2
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  0000020c  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000048  00000000  00000000  0000022c  2**0
+  4 .debug_aranges 00000048  00000000  00000000  00000248  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   0000039a  00000000  00000000  00000274  2**0
+  5 .debug_info   000003c3  00000000  00000000  00000290  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000175  00000000  00000000  0000060e  2**0
+  6 .debug_abbrev 0000018f  00000000  00000000  00000653  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000002b5  00000000  00000000  00000783  2**0
+  7 .debug_line   000002d1  00000000  00000000  000007e2  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000074  00000000  00000000  00000a38  2**2
+  8 .debug_frame  00000074  00000000  00000000  00000ab4  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    000001b5  00000000  00000000  00000aac  2**0
+  9 .debug_str    000001b5  00000000  00000000  00000b28  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    00000097  00000000  00000000  00000c61  2**0
+ 10 .debug_loc    000000ab  00000000  00000000  00000cdd  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000050  00000000  00000000  00000cf8  2**0
+ 11 .debug_ranges 00000068  00000000  00000000  00000d88  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -110,7 +110,7 @@ Disassembly of section .text:
   94:	de bf       	out	0x3e, r29	; 62
   96:	cd bf       	out	0x3d, r28	; 61
   98:	2d d0       	rcall	.+90     	; 0xf4 <main>
-  9a:	66 c0       	rjmp	.+204    	; 0x168 <_exit>
+  9a:	74 c0       	rjmp	.+232    	; 0x184 <_exit>
 
 0000009c <__bad_interrupt>:
   9c:	b1 cf       	rjmp	.-158    	; 0x0 <__vectors>
@@ -279,76 +279,102 @@ Version :    	DMK, Initial code
 {
 	TWCR = (0x80 | 0x10 | 0x04);
  12e:	18 83       	st	Y, r17
- 130:	04 e7       	ldi	r16, 0x74	; 116
- 132:	10 e0       	ldi	r17, 0x00	; 0
- 134:	c4 e9       	ldi	r28, 0x94	; 148
+ 130:	c0 e0       	ldi	r28, 0x00	; 0
+ 132:	04 e7       	ldi	r16, 0x74	; 116
+ 134:	10 e0       	ldi	r17, 0x00	; 0
+ 136:	d4 e9       	ldi	r29, 0x94	; 148
+	twi_start();
+	twi_tx(0xE0);	// Display I2C address + R/W bit
 	twi_tx(0x81);	// Display OFF - Blink On
 	twi_stop();
+	for(int i = 0; i <= 14; i += 2){
+	twi_start();
+ 138:	b8 df       	rcall	.-144    	; 0xaa <twi_start>
+	twi_tx(0xE0);	// Display I2C addres + R/W bit
+ 13a:	80 ee       	ldi	r24, 0xE0	; 224
+ 13c:	bf df       	rcall	.-130    	; 0xbc <twi_tx>
+	twi_tx(i);	// Address
+ 13e:	8c 2f       	mov	r24, r28
+ 140:	bd df       	rcall	.-134    	; 0xbc <twi_tx>
+	twi_tx(0x00);	// data
+ 142:	80 e0       	ldi	r24, 0x00	; 0
+ 144:	bb df       	rcall	.-138    	; 0xbc <twi_tx>
+outputs:	
+notes:			
+Version :    	DMK, Initial code
+*******************************************************************/
+{
+	TWCR = (0x80 | 0x10 | 0x04);
+ 146:	f8 01       	movw	r30, r16
+ 148:	d0 83       	st	Z, r29
+ 14a:	ce 5f       	subi	r28, 0xFE	; 254
 
+	twi_start();
+	twi_tx(0xE0);	// Display I2C address + R/W bit
+	twi_tx(0x81);	// Display OFF - Blink On
+	twi_stop();
+	for(int i = 0; i <= 14; i += 2){
+ 14c:	c0 31       	cpi	r28, 0x10	; 16
+ 14e:	a1 f7       	brne	.-24     	; 0x138 <main+0x44>
+ 150:	c1 e0       	ldi	r28, 0x01	; 1
+ 152:	d0 e0       	ldi	r29, 0x00	; 0
+outputs:	
+notes:			
+Version :    	DMK, Initial code
+*******************************************************************/
+{
+	TWCR = (0x80 | 0x10 | 0x04);
+ 154:	0f 2e       	mov	r0, r31
+ 156:	f4 e7       	ldi	r31, 0x74	; 116
+ 158:	ef 2e       	mov	r14, r31
+ 15a:	f1 2c       	mov	r15, r1
+ 15c:	f0 2d       	mov	r31, r0
+ 15e:	14 e9       	ldi	r17, 0x94	; 148
+	}
+	int i = 1;
 	while (1)
 	{
-		twi_start();
- 136:	b9 df       	rcall	.-142    	; 0xaa <twi_start>
-		twi_tx(0xE0);	// Display I2C addres + R/W bit
- 138:	80 ee       	ldi	r24, 0xE0	; 224
- 13a:	c0 df       	rcall	.-128    	; 0xbc <twi_tx>
-		twi_tx(0x00);	// Address
- 13c:	80 e0       	ldi	r24, 0x00	; 0
- 13e:	be df       	rcall	.-132    	; 0xbc <twi_tx>
-		twi_tx(0x12);	// data
- 140:	82 e1       	ldi	r24, 0x12	; 18
- 142:	bc df       	rcall	.-136    	; 0xbc <twi_tx>
-outputs:	
-notes:			
-Version :    	DMK, Initial code
-*******************************************************************/
-{
-	TWCR = (0x80 | 0x10 | 0x04);
- 144:	f8 01       	movw	r30, r16
- 146:	c0 83       	st	Z, r28
-		twi_tx(0xE0);	// Display I2C addres + R/W bit
-		twi_tx(0x00);	// Address
-		twi_tx(0x12);	// data
-		twi_stop();
 
-		wait(500);	
- 148:	84 ef       	ldi	r24, 0xF4	; 244
- 14a:	91 e0       	ldi	r25, 0x01	; 1
- 14c:	c2 df       	rcall	.-124    	; 0xd2 <wait>
-
-		twi_start();
- 14e:	ad df       	rcall	.-166    	; 0xaa <twi_start>
-		twi_tx(0xE0);	// Display I2C addres + R/W bit
- 150:	80 ee       	ldi	r24, 0xE0	; 224
- 152:	b4 df       	rcall	.-152    	; 0xbc <twi_tx>
-		twi_tx(0x00);	// Address
- 154:	80 e0       	ldi	r24, 0x00	; 0
- 156:	b2 df       	rcall	.-156    	; 0xbc <twi_tx>
-		twi_tx(0x00);	// data
- 158:	80 e0       	ldi	r24, 0x00	; 0
- 15a:	b0 df       	rcall	.-160    	; 0xbc <twi_tx>
-outputs:	
-notes:			
-Version :    	DMK, Initial code
-*******************************************************************/
-{
-	TWCR = (0x80 | 0x10 | 0x04);
- 15c:	f8 01       	movw	r30, r16
- 15e:	c0 83       	st	Z, r28
-		twi_tx(0xE0);	// Display I2C addres + R/W bit
-		twi_tx(0x00);	// Address
-		twi_tx(0x00);	// data
-		twi_stop();	
-
-		wait(500);
+				wait(500);
  160:	84 ef       	ldi	r24, 0xF4	; 244
  162:	91 e0       	ldi	r25, 0x01	; 1
  164:	b6 df       	rcall	.-148    	; 0xd2 <wait>
+				twi_start();
+ 166:	a1 df       	rcall	.-190    	; 0xaa <twi_start>
+				twi_tx(0xE0);	// Display I2C addres + R/W bit
+ 168:	80 ee       	ldi	r24, 0xE0	; 224
+ 16a:	a8 df       	rcall	.-176    	; 0xbc <twi_tx>
+				twi_tx(0x0E);	// Address
+ 16c:	8e e0       	ldi	r24, 0x0E	; 14
+ 16e:	a6 df       	rcall	.-180    	; 0xbc <twi_tx>
+				twi_tx(i);	// data
+ 170:	8c 2f       	mov	r24, r28
+ 172:	a4 df       	rcall	.-184    	; 0xbc <twi_tx>
+outputs:	
+notes:			
+Version :    	DMK, Initial code
+*******************************************************************/
+{
+	TWCR = (0x80 | 0x10 | 0x04);
+ 174:	f7 01       	movw	r30, r14
+ 176:	10 83       	st	Z, r17
+				twi_start();
+				twi_tx(0xE0);	// Display I2C addres + R/W bit
+				twi_tx(0x0E);	// Address
+				twi_tx(i);	// data
+				twi_stop();
+				i = i << 1;
+ 178:	cc 0f       	add	r28, r28
+ 17a:	dd 1f       	adc	r29, r29
+				wait(500);
+ 17c:	84 ef       	ldi	r24, 0xF4	; 244
+ 17e:	91 e0       	ldi	r25, 0x01	; 1
+ 180:	a8 df       	rcall	.-176    	; 0xd2 <wait>
 	}
- 166:	e7 cf       	rjmp	.-50     	; 0x136 <main+0x42>
+ 182:	ee cf       	rjmp	.-36     	; 0x160 <main+0x6c>
 
-00000168 <_exit>:
- 168:	f8 94       	cli
+00000184 <_exit>:
+ 184:	f8 94       	cli
 
-0000016a <__stop_program>:
- 16a:	ff cf       	rjmp	.-2      	; 0x16a <__stop_program>
+00000186 <__stop_program>:
+ 186:	ff cf       	rjmp	.-2      	; 0x186 <__stop_program>
