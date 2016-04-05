@@ -1,10 +1,11 @@
+
 #include <avr/io.h>
 #include <util/delay.h>
 #define BIT(x) ( 1<<x )
 #define DDR_SPI DDRB // spi Data direction register
 #define PORT_SPI PORTB // spi Output register
 #define SPI_SCK 1 // PB1: spi Pin System Clock
-#define SPI_MOSI 2 // PB2: spi Pin MOSI
+#define SPI_MOSI 2 // PB2:2 spi Pin MOSI
 #define SPI_MISO 3 // PB3: spi Pin MISO
 #define SPI_SS 0 // PB0: spi Pin Slave Select
 // wait(): busy waiting for 'ms' millisecond - used library: util/delay.h
@@ -81,26 +82,26 @@ void displayOff()
 	spi_write(0x00); // -> 1 = Normal operation
 	spi_slaveDeSelect(0); // Deselect display chip
 }
-void display_nummer(char *s) {
+void display_nummer(int data1) {
 	wait(1000);
 	spi_slaveSelect(0);               // select max7219
 	spi_write(4);                 // send Thousands digit
-	spi_write(s[0]);
+	spi_write(data1/1000);
 	spi_slaveSelect(0);               // deselect max7219
 	wait(1000);
 	spi_slaveSelect(0);               // select max7219
 	spi_write(3);                 // send Hundreds digit
-	spi_write(s[1]);
+	spi_write((data1/100)%10);
 	spi_slaveSelect(0);              // deselect max7219
 	wait(1000);
 	spi_slaveSelect(0);               // select max7219
 	spi_write(2);                 // send Tens digit
-	spi_write(s[2]);
+	spi_write((data1/10)%10);
 	spi_slaveSelect(0);               // deselect max7219
 	wait(1000);
 	spi_slaveSelect(0);               // select max7219
 	spi_write(1);                 // send Ones digit
-	spi_write(s[]);
+	spi_write(data1%10);
 	spi_slaveSelect(0);               // deselect max7219
 	wait(1000);
 	
@@ -108,12 +109,12 @@ void display_nummer(char *s) {
 }
 int main()
 {
-	DDRB=0x01; // Set PB0 pin as output for display select
+	DDRB=0xFF; // Set PB0 pin as output for display select
 	spi_masterInit(); // Initialize spi module
 	displayDriverInit(); // Initialize display chip
 	// clear display (all zero's)
 
-	display_nummer("-234");
+	display_nummer(1234);
 	wait(1000);
 	return (1);
 }

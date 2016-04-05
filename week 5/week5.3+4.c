@@ -146,7 +146,7 @@ int main()
 		spi_slaveDeSelect(0); // Deselect display chip
 	}
 	wait(1000);
-	spi_writeWord(3,3);
+	display_nummer(1234);
 	wait(1000);
 	return (1);
 }
