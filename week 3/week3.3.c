@@ -22,23 +22,23 @@ void init(void)
 {
 	DDRD |= Bit(7);
 
-	OCR2 = 125;
+	OCR2 = 250;
 	TIMSK |= Bit(7);
 	sei();
-	TCCR2 = 0b00001011;
+	TCCR2 = 0b00001101;
 }
 
 ISR(TIMER2_COMP_vect)
 {
 	msCount ++;
 
-	if(LEDswitch && msCount == 25)
+	if(LEDswitch && msCount == 15)
 	{
 		LEDswitch = 0;
 		msCount = 0;
 		ToggleD7();
 	}
-	else if(!LEDswitch && msCount == 15)
+	else if(!LEDswitch && msCount == 25)
 	{
 		LEDswitch = 1;
 		msCount = 0;
