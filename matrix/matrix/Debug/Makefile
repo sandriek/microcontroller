@@ -37,7 +37,10 @@ SUBDIRS :=
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
-../main.c
+../CFile1.c \
+../lcd.c \
+../main.c \
+../Spi.c
 
 
 PREPROCESSING_SRCS += 
@@ -47,16 +50,28 @@ ASM_SRCS +=
 
 
 OBJS +=  \
-main.o
+CFile1.o \
+lcd.o \
+main.o \
+Spi.o
 
 OBJS_AS_ARGS +=  \
-main.o
+CFile1.o \
+lcd.o \
+main.o \
+Spi.o
 
 C_DEPS +=  \
-main.d
+CFile1.d \
+lcd.d \
+main.d \
+Spi.d
 
 C_DEPS_AS_ARGS +=  \
-main.d
+CFile1.d \
+lcd.d \
+main.d \
+Spi.d
 
 OUTPUT_FILE_PATH +=matrix.elf
 
@@ -72,6 +87,12 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
+
+
+
+
 
 
 
