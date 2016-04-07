@@ -33,7 +33,7 @@ PATTERN_STRUCT pacman[] =
 
 void PacmanAnimatie()
 {
-	for (int i = 0; i < 3; i ++)
+	for (int i = 0; i < 5; i ++)
 	{
 		switch (i)
 		{
@@ -85,6 +85,36 @@ void PacmanAnimatie()
 			case 3:
 			{
 				int x = 24;
+				for (int adres = 0; adres <= 14; adres += 2)
+				{
+					twi_start();
+					twi_tx(0xE0);	// Display I2C addres + R/W bit
+					twi_tx(adres);	// Address
+					twi_tx(pacman[x].data);	// data
+					twi_stop();
+					x++;
+				}
+			}
+			break;
+
+			case 4:
+			{
+				int x = 16;
+				for (int adres = 0; adres <= 14; adres += 2)
+				{
+					twi_start();
+					twi_tx(0xE0);	// Display I2C addres + R/W bit
+					twi_tx(adres);	// Address
+					twi_tx(pacman[x].data);	// data
+					twi_stop();
+					x++;
+				}
+			}
+			break;
+
+			case 5:
+			{
+				int x = 8;
 				for (int adres = 0; adres <= 14; adres += 2)
 				{
 					twi_start();
