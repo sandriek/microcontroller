@@ -3,29 +3,29 @@ matrix.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000018  00800100  000002a4  00000318  2**0
+  0 .data         00000020  00800100  000003dc  00000450  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         000002a4  00000000  00000000  00000074  2**1
+  1 .text         000003dc  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      00000030  00000000  00000000  00000330  2**0
+  2 .comment      00000030  00000000  00000000  00000470  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000360  2**2
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000004a0  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000118  00000000  00000000  0000039c  2**0
+  4 .debug_aranges 00000100  00000000  00000000  000004dc  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   000010a9  00000000  00000000  000004b4  2**0
+  5 .debug_info   000010ff  00000000  00000000  000005dc  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000549  00000000  00000000  0000155d  2**0
+  6 .debug_abbrev 0000054a  00000000  00000000  000016db  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000008fc  00000000  00000000  00001aa6  2**0
+  7 .debug_line   000008d9  00000000  00000000  00001c25  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000304  00000000  00000000  000023a4  2**2
+  8 .debug_frame  0000028c  00000000  00000000  00002500  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    0000037f  00000000  00000000  000026a8  2**0
+  9 .debug_str    00000321  00000000  00000000  0000278c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    00000899  00000000  00000000  00002a27  2**0
+ 10 .debug_loc    0000087e  00000000  00000000  00002aad  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000178  00000000  00000000  000032c0  2**0
+ 11 .debug_ranges 00000190  00000000  00000000  0000332b  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -114,26 +114,33 @@ Disassembly of section .text:
   98:	11 e0       	ldi	r17, 0x01	; 1
   9a:	a0 e0       	ldi	r26, 0x00	; 0
   9c:	b1 e0       	ldi	r27, 0x01	; 1
-  9e:	e4 ea       	ldi	r30, 0xA4	; 164
-  a0:	f2 e0       	ldi	r31, 0x02	; 2
+  9e:	ec ed       	ldi	r30, 0xDC	; 220
+  a0:	f3 e0       	ldi	r31, 0x03	; 3
   a2:	00 e0       	ldi	r16, 0x00	; 0
   a4:	0b bf       	out	0x3b, r16	; 59
   a6:	02 c0       	rjmp	.+4      	; 0xac <__do_copy_data+0x14>
   a8:	07 90       	elpm	r0, Z+
   aa:	0d 92       	st	X+, r0
-  ac:	a8 31       	cpi	r26, 0x18	; 24
+  ac:	a0 32       	cpi	r26, 0x20	; 32
   ae:	b1 07       	cpc	r27, r17
   b0:	d9 f7       	brne	.-10     	; 0xa8 <__do_copy_data+0x10>
-  b2:	ab d0       	rcall	.+342    	; 0x20a <main>
-  b4:	f5 c0       	rjmp	.+490    	; 0x2a0 <_exit>
+  b2:	47 d1       	rcall	.+654    	; 0x342 <main>
+  b4:	91 c1       	rjmp	.+802    	; 0x3d8 <_exit>
 
 000000b6 <__bad_interrupt>:
   b6:	a4 cf       	rjmp	.-184    	; 0x0 <__vectors>
 
 000000b8 <lcd_command>:
+ void clear(){
+ lcd_command(0x01);
+ }
+ void lcd_command ( unsigned char dat )
+ {
+	 PORTC = dat & 0xF0; 
   b8:	98 2f       	mov	r25, r24
   ba:	90 7f       	andi	r25, 0xF0	; 240
   bc:	95 bb       	out	0x15, r25	; 21
+	 PORTC = PORTC | 0x08; 
   be:	ab 9a       	sbi	0x15, 3	; 21
 	#else
 		//round up by default
@@ -147,13 +154,17 @@ Disassembly of section .text:
   c6:	f1 f7       	brne	.-4      	; 0xc4 <lcd_command+0xc>
   c8:	00 c0       	rjmp	.+0      	; 0xca <lcd_command+0x12>
   ca:	00 00       	nop
+	 _delay_ms(50);
+	 PORTC = 0x04; 
   cc:	94 e0       	ldi	r25, 0x04	; 4
   ce:	95 bb       	out	0x15, r25	; 21
+	 PORTC = (dat & 0x0F) << 4; 
   d0:	f0 e1       	ldi	r31, 0x10	; 16
   d2:	8f 9f       	mul	r24, r31
   d4:	c0 01       	movw	r24, r0
   d6:	11 24       	eor	r1, r1
   d8:	85 bb       	out	0x15, r24	; 21
+	 PORTC = PORTC | 0x08;
   da:	ab 9a       	sbi	0x15, 3	; 21
   dc:	83 ed       	ldi	r24, 0xD3	; 211
   de:	90 e3       	ldi	r25, 0x30	; 48
@@ -161,332 +172,698 @@ Disassembly of section .text:
   e2:	f1 f7       	brne	.-4      	; 0xe0 <lcd_command+0x28>
   e4:	00 c0       	rjmp	.+0      	; 0xe6 <lcd_command+0x2e>
   e6:	00 00       	nop
+	 _delay_ms(50); 
+	 PORTC = 0x00; 
   e8:	15 ba       	out	0x15, r1	; 21
   ea:	08 95       	ret
 
 000000ec <init>:
+ #include "lcd.h"
+int i =1;
+
+ void init()
+ {
+ lcd_command( 0x02 );
   ec:	82 e0       	ldi	r24, 0x02	; 2
   ee:	90 e0       	ldi	r25, 0x00	; 0
   f0:	e3 df       	rcall	.-58     	; 0xb8 <lcd_command>
+ lcd_command( 0x28 ); 
   f2:	88 e2       	ldi	r24, 0x28	; 40
   f4:	90 e0       	ldi	r25, 0x00	; 0
   f6:	e0 df       	rcall	.-64     	; 0xb8 <lcd_command>
+ lcd_command( 0x0C );
   f8:	8c e0       	ldi	r24, 0x0C	; 12
   fa:	90 e0       	ldi	r25, 0x00	; 0
   fc:	dd df       	rcall	.-70     	; 0xb8 <lcd_command>
+ lcd_command( 0x06 );
   fe:	86 e0       	ldi	r24, 0x06	; 6
  100:	90 e0       	ldi	r25, 0x00	; 0
  102:	da df       	rcall	.-76     	; 0xb8 <lcd_command>
+ lcd_command( 0x80 );
  104:	80 e8       	ldi	r24, 0x80	; 128
  106:	90 e0       	ldi	r25, 0x00	; 0
  108:	d7 cf       	rjmp	.-82     	; 0xb8 <lcd_command>
  10a:	08 95       	ret
 
-0000010c <twi_init>:
-		twi_tx(0xE0);	// Display I2C addres + R/W bit
-		twi_tx(adres);	// Address
-		twi_tx(0);	// data
-		twi_stop();
+0000010c <wait>:
+	while( 0x00 == (TWCR & 0x80) );
+}
+
+void twi_stop(void)
+{
+	TWCR = (0x80 | 0x10 | 0x04);
+ 10c:	18 16       	cp	r1, r24
+ 10e:	19 06       	cpc	r1, r25
+ 110:	6c f4       	brge	.+26     	; 0x12c <wait+0x20>
+ 112:	20 e0       	ldi	r18, 0x00	; 0
+ 114:	30 e0       	ldi	r19, 0x00	; 0
+ 116:	e9 ef       	ldi	r30, 0xF9	; 249
+ 118:	f0 e0       	ldi	r31, 0x00	; 0
+ 11a:	31 97       	sbiw	r30, 0x01	; 1
+ 11c:	f1 f7       	brne	.-4      	; 0x11a <wait+0xe>
+ 11e:	00 c0       	rjmp	.+0      	; 0x120 <wait+0x14>
+ 120:	00 00       	nop
+ 122:	2f 5f       	subi	r18, 0xFF	; 255
+ 124:	3f 4f       	sbci	r19, 0xFF	; 255
+ 126:	28 17       	cp	r18, r24
+ 128:	39 07       	cpc	r19, r25
+ 12a:	a9 f7       	brne	.-22     	; 0x116 <wait+0xa>
+ 12c:	08 95       	ret
+
+0000012e <twi_init>:
+ 12e:	10 92 71 00 	sts	0x0071, r1
+ 132:	80 e2       	ldi	r24, 0x20	; 32
+ 134:	80 93 70 00 	sts	0x0070, r24
+ 138:	08 95       	ret
+
+0000013a <twi_start>:
+ 13a:	84 ea       	ldi	r24, 0xA4	; 164
+ 13c:	80 93 74 00 	sts	0x0074, r24
+ 140:	e4 e7       	ldi	r30, 0x74	; 116
+ 142:	f0 e0       	ldi	r31, 0x00	; 0
+ 144:	80 81       	ld	r24, Z
+ 146:	88 23       	and	r24, r24
+ 148:	ec f7       	brge	.-6      	; 0x144 <twi_start+0xa>
+ 14a:	08 95       	ret
+
+0000014c <twi_tx>:
+}
+
+void twi_tx(unsigned char data)
+{
+	TWDR = data;
+ 14c:	80 93 73 00 	sts	0x0073, r24
+	TWCR = (0x80 | 0x04);
+ 150:	84 e8       	ldi	r24, 0x84	; 132
+ 152:	80 93 74 00 	sts	0x0074, r24
+	while( 0 == (TWCR & 0x80) );
+ 156:	e4 e7       	ldi	r30, 0x74	; 116
+ 158:	f0 e0       	ldi	r31, 0x00	; 0
+ 15a:	80 81       	ld	r24, Z
+ 15c:	88 23       	and	r24, r24
+ 15e:	ec f7       	brge	.-6      	; 0x15a <twi_tx+0xe>
+ 160:	08 95       	ret
+
+00000162 <PacmanAnimatie>:
+	//mond dicht
+	{30}, {63}, {253}, {255}, {255}, {255}, {63}, {30}
+};
+
+void PacmanAnimatie()
+{
+ 162:	5f 92       	push	r5
+ 164:	6f 92       	push	r6
+ 166:	7f 92       	push	r7
+ 168:	8f 92       	push	r8
+ 16a:	9f 92       	push	r9
+ 16c:	af 92       	push	r10
+ 16e:	bf 92       	push	r11
+ 170:	cf 92       	push	r12
+ 172:	df 92       	push	r13
+ 174:	ef 92       	push	r14
+ 176:	ff 92       	push	r15
+ 178:	0f 93       	push	r16
+ 17a:	1f 93       	push	r17
+ 17c:	cf 93       	push	r28
+ 17e:	df 93       	push	r29
+ 180:	ee 24       	eor	r14, r14
+ 182:	e3 94       	inc	r14
+ 184:	f1 2c       	mov	r15, r1
+ 186:	0f 2e       	mov	r0, r31
+ 188:	f8 e0       	ldi	r31, 0x08	; 8
+ 18a:	cf 2e       	mov	r12, r31
+ 18c:	f1 e0       	ldi	r31, 0x01	; 1
+ 18e:	df 2e       	mov	r13, r31
+ 190:	f0 2d       	mov	r31, r0
+	for (int i = 0; i < 3; i ++)
+	{
+		switch (i)
+ 192:	61 2c       	mov	r6, r1
+ 194:	51 2c       	mov	r5, r1
+	while( 0x00 == (TWCR & 0x80) );
+}
+
+void twi_stop(void)
+{
+	TWCR = (0x80 | 0x10 | 0x04);
+ 196:	04 e7       	ldi	r16, 0x74	; 116
+ 198:	10 e0       	ldi	r17, 0x00	; 0
+ 19a:	0f 2e       	mov	r0, r31
+ 19c:	f4 e9       	ldi	r31, 0x94	; 148
+ 19e:	7f 2e       	mov	r7, r31
+ 1a0:	f0 2d       	mov	r31, r0
+ 1a2:	0f 2e       	mov	r0, r31
+ 1a4:	f0 e0       	ldi	r31, 0x00	; 0
+ 1a6:	8f 2e       	mov	r8, r31
+ 1a8:	f1 e0       	ldi	r31, 0x01	; 1
+ 1aa:	9f 2e       	mov	r9, r31
+ 1ac:	f0 2d       	mov	r31, r0
+ 1ae:	03 c0       	rjmp	.+6      	; 0x1b6 <PacmanAnimatie+0x54>
+ 1b0:	8f ef       	ldi	r24, 0xFF	; 255
+ 1b2:	e8 1a       	sub	r14, r24
+ 1b4:	f8 0a       	sbc	r15, r24
+ 1b6:	c7 01       	movw	r24, r14
+ 1b8:	01 97       	sbiw	r24, 0x01	; 1
+
+void PacmanAnimatie()
+{
+	for (int i = 0; i < 3; i ++)
+	{
+		switch (i)
+ 1ba:	81 30       	cpi	r24, 0x01	; 1
+ 1bc:	91 05       	cpc	r25, r1
+ 1be:	01 f1       	breq	.+64     	; 0x200 <PacmanAnimatie+0x9e>
+ 1c0:	1c f4       	brge	.+6      	; 0x1c8 <PacmanAnimatie+0x66>
+ 1c2:	89 2b       	or	r24, r25
+ 1c4:	41 f0       	breq	.+16     	; 0x1d6 <PacmanAnimatie+0x74>
+ 1c6:	6f c0       	rjmp	.+222    	; 0x2a6 <PacmanAnimatie+0x144>
+ 1c8:	82 30       	cpi	r24, 0x02	; 2
+ 1ca:	91 05       	cpc	r25, r1
+ 1cc:	71 f1       	breq	.+92     	; 0x22a <PacmanAnimatie+0xc8>
+ 1ce:	03 97       	sbiw	r24, 0x03	; 3
+ 1d0:	09 f4       	brne	.+2      	; 0x1d4 <PacmanAnimatie+0x72>
+ 1d2:	4a c0       	rjmp	.+148    	; 0x268 <PacmanAnimatie+0x106>
+ 1d4:	68 c0       	rjmp	.+208    	; 0x2a6 <PacmanAnimatie+0x144>
+ 1d6:	54 01       	movw	r10, r8
+ 1d8:	c6 2d       	mov	r28, r6
+ 1da:	d5 2d       	mov	r29, r5
+			case 0: 
+				{
+					int x = 0;
+					for (int adres = 0; adres <= 14; adres += 2)
+					{
+						twi_start();
+ 1dc:	ae df       	rcall	.-164    	; 0x13a <twi_start>
+						twi_tx(0xE0);	// Display I2C addres + R/W bit
+ 1de:	80 ee       	ldi	r24, 0xE0	; 224
+ 1e0:	90 e0       	ldi	r25, 0x00	; 0
+ 1e2:	b4 df       	rcall	.-152    	; 0x14c <twi_tx>
+						twi_tx(adres);	// Address
+ 1e4:	ce 01       	movw	r24, r28
+ 1e6:	b2 df       	rcall	.-156    	; 0x14c <twi_tx>
+						twi_tx(pacman[x].data);	// data
+ 1e8:	f5 01       	movw	r30, r10
+ 1ea:	81 91       	ld	r24, Z+
+ 1ec:	5f 01       	movw	r10, r30
+ 1ee:	90 e0       	ldi	r25, 0x00	; 0
+ 1f0:	ad df       	rcall	.-166    	; 0x14c <twi_tx>
+	while( 0x00 == (TWCR & 0x80) );
+}
+
+void twi_stop(void)
+{
+	TWCR = (0x80 | 0x10 | 0x04);
+ 1f2:	f8 01       	movw	r30, r16
+ 1f4:	70 82       	st	Z, r7
+		switch (i)
+		{
+			case 0: 
+				{
+					int x = 0;
+					for (int adres = 0; adres <= 14; adres += 2)
+ 1f6:	22 96       	adiw	r28, 0x02	; 2
+ 1f8:	ac 14       	cp	r10, r12
+ 1fa:	bd 04       	cpc	r11, r13
+ 1fc:	79 f7       	brne	.-34     	; 0x1dc <PacmanAnimatie+0x7a>
+ 1fe:	5c c0       	rjmp	.+184    	; 0x2b8 <PacmanAnimatie+0x156>
+ 200:	56 01       	movw	r10, r12
+
+void PacmanAnimatie()
+{
+	for (int i = 0; i < 3; i ++)
+	{
+		switch (i)
+ 202:	c6 2d       	mov	r28, r6
+ 204:	d5 2d       	mov	r29, r5
+			case 1:
+			{
+				int x = 8;
+				for (int adres = 0; adres <= 14; adres += 2)
+				{
+					twi_start();
+ 206:	99 df       	rcall	.-206    	; 0x13a <twi_start>
+					twi_tx(0xE0);	// Display I2C addres + R/W bit
+ 208:	80 ee       	ldi	r24, 0xE0	; 224
+ 20a:	90 e0       	ldi	r25, 0x00	; 0
+ 20c:	9f df       	rcall	.-194    	; 0x14c <twi_tx>
+					twi_tx(adres);	// Address
+ 20e:	ce 01       	movw	r24, r28
+ 210:	9d df       	rcall	.-198    	; 0x14c <twi_tx>
+					twi_tx(pacman[x].data);	// data
+ 212:	f5 01       	movw	r30, r10
+ 214:	81 91       	ld	r24, Z+
+ 216:	5f 01       	movw	r10, r30
+ 218:	90 e0       	ldi	r25, 0x00	; 0
+ 21a:	98 df       	rcall	.-208    	; 0x14c <twi_tx>
+	while( 0x00 == (TWCR & 0x80) );
+}
+
+void twi_stop(void)
+{
+	TWCR = (0x80 | 0x10 | 0x04);
+ 21c:	f8 01       	movw	r30, r16
+ 21e:	70 82       	st	Z, r7
+			break;
+
+			case 1:
+			{
+				int x = 8;
+				for (int adres = 0; adres <= 14; adres += 2)
+ 220:	22 96       	adiw	r28, 0x02	; 2
+ 222:	c0 31       	cpi	r28, 0x10	; 16
+ 224:	d1 05       	cpc	r29, r1
+ 226:	79 f7       	brne	.-34     	; 0x206 <PacmanAnimatie+0xa4>
+ 228:	47 c0       	rjmp	.+142    	; 0x2b8 <PacmanAnimatie+0x156>
+ 22a:	00 e1       	ldi	r16, 0x10	; 16
+ 22c:	11 e0       	ldi	r17, 0x01	; 1
+
+void PacmanAnimatie()
+{
+	for (int i = 0; i < 3; i ++)
+	{
+		switch (i)
+ 22e:	c0 e0       	ldi	r28, 0x00	; 0
+ 230:	d0 e0       	ldi	r29, 0x00	; 0
+	while( 0x00 == (TWCR & 0x80) );
+}
+
+void twi_stop(void)
+{
+	TWCR = (0x80 | 0x10 | 0x04);
+ 232:	0f 2e       	mov	r0, r31
+ 234:	f4 e7       	ldi	r31, 0x74	; 116
+ 236:	cf 2e       	mov	r12, r31
+ 238:	d1 2c       	mov	r13, r1
+ 23a:	f0 2d       	mov	r31, r0
+ 23c:	0f 2e       	mov	r0, r31
+ 23e:	f4 e9       	ldi	r31, 0x94	; 148
+ 240:	ff 2e       	mov	r15, r31
+ 242:	f0 2d       	mov	r31, r0
+			case 2:
+			{
+				int x = 16;
+				for (int adres = 0; adres <= 14; adres += 2)
+				{
+					twi_start();
+ 244:	7a df       	rcall	.-268    	; 0x13a <twi_start>
+					twi_tx(0xE0);	// Display I2C addres + R/W bit
+ 246:	80 ee       	ldi	r24, 0xE0	; 224
+ 248:	90 e0       	ldi	r25, 0x00	; 0
+ 24a:	80 df       	rcall	.-256    	; 0x14c <twi_tx>
+					twi_tx(adres);	// Address
+ 24c:	ce 01       	movw	r24, r28
+ 24e:	7e df       	rcall	.-260    	; 0x14c <twi_tx>
+					twi_tx(pacman[x].data);	// data
+ 250:	f8 01       	movw	r30, r16
+ 252:	81 91       	ld	r24, Z+
+ 254:	8f 01       	movw	r16, r30
+ 256:	90 e0       	ldi	r25, 0x00	; 0
+ 258:	79 df       	rcall	.-270    	; 0x14c <twi_tx>
+	while( 0x00 == (TWCR & 0x80) );
+}
+
+void twi_stop(void)
+{
+	TWCR = (0x80 | 0x10 | 0x04);
+ 25a:	f6 01       	movw	r30, r12
+ 25c:	f0 82       	st	Z, r15
+			break;
+
+			case 2:
+			{
+				int x = 16;
+				for (int adres = 0; adres <= 14; adres += 2)
+ 25e:	22 96       	adiw	r28, 0x02	; 2
+ 260:	c0 31       	cpi	r28, 0x10	; 16
+ 262:	d1 05       	cpc	r29, r1
+ 264:	79 f7       	brne	.-34     	; 0x244 <PacmanAnimatie+0xe2>
+ 266:	2c c0       	rjmp	.+88     	; 0x2c0 <PacmanAnimatie+0x15e>
+ 268:	08 e1       	ldi	r16, 0x18	; 24
+ 26a:	11 e0       	ldi	r17, 0x01	; 1
+
+void PacmanAnimatie()
+{
+	for (int i = 0; i < 3; i ++)
+	{
+		switch (i)
+ 26c:	c0 e0       	ldi	r28, 0x00	; 0
+ 26e:	d0 e0       	ldi	r29, 0x00	; 0
+	while( 0x00 == (TWCR & 0x80) );
+}
+
+void twi_stop(void)
+{
+	TWCR = (0x80 | 0x10 | 0x04);
+ 270:	0f 2e       	mov	r0, r31
+ 272:	f4 e7       	ldi	r31, 0x74	; 116
+ 274:	cf 2e       	mov	r12, r31
+ 276:	d1 2c       	mov	r13, r1
+ 278:	f0 2d       	mov	r31, r0
+ 27a:	0f 2e       	mov	r0, r31
+ 27c:	f4 e9       	ldi	r31, 0x94	; 148
+ 27e:	ff 2e       	mov	r15, r31
+ 280:	f0 2d       	mov	r31, r0
+			case 3:
+			{
+				int x = 24;
+				for (int adres = 0; adres <= 14; adres += 2)
+				{
+					twi_start();
+ 282:	5b df       	rcall	.-330    	; 0x13a <twi_start>
+					twi_tx(0xE0);	// Display I2C addres + R/W bit
+ 284:	80 ee       	ldi	r24, 0xE0	; 224
+ 286:	90 e0       	ldi	r25, 0x00	; 0
+ 288:	61 df       	rcall	.-318    	; 0x14c <twi_tx>
+					twi_tx(adres);	// Address
+ 28a:	ce 01       	movw	r24, r28
+ 28c:	5f df       	rcall	.-322    	; 0x14c <twi_tx>
+					twi_tx(pacman[x].data);	// data
+ 28e:	f8 01       	movw	r30, r16
+ 290:	81 91       	ld	r24, Z+
+ 292:	8f 01       	movw	r16, r30
+ 294:	90 e0       	ldi	r25, 0x00	; 0
+ 296:	5a df       	rcall	.-332    	; 0x14c <twi_tx>
+	while( 0x00 == (TWCR & 0x80) );
+}
+
+void twi_stop(void)
+{
+	TWCR = (0x80 | 0x10 | 0x04);
+ 298:	f6 01       	movw	r30, r12
+ 29a:	f0 82       	st	Z, r15
+			break;
+
+			case 3:
+			{
+				int x = 24;
+				for (int adres = 0; adres <= 14; adres += 2)
+ 29c:	22 96       	adiw	r28, 0x02	; 2
+ 29e:	c0 31       	cpi	r28, 0x10	; 16
+ 2a0:	d1 05       	cpc	r29, r1
+ 2a2:	79 f7       	brne	.-34     	; 0x282 <PacmanAnimatie+0x120>
+ 2a4:	0d c0       	rjmp	.+26     	; 0x2c0 <PacmanAnimatie+0x15e>
+				}
+			}
+			break;
+		} 
+
+		wait(500);
+ 2a6:	84 ef       	ldi	r24, 0xF4	; 244
+ 2a8:	91 e0       	ldi	r25, 0x01	; 1
+ 2aa:	30 df       	rcall	.-416    	; 0x10c <wait>
+	{30}, {63}, {253}, {255}, {255}, {255}, {63}, {30}
+};
+
+void PacmanAnimatie()
+{
+	for (int i = 0; i < 3; i ++)
+ 2ac:	f3 e0       	ldi	r31, 0x03	; 3
+ 2ae:	ef 16       	cp	r14, r31
+ 2b0:	f1 04       	cpc	r15, r1
+ 2b2:	0c f4       	brge	.+2      	; 0x2b6 <PacmanAnimatie+0x154>
+ 2b4:	7d cf       	rjmp	.-262    	; 0x1b0 <PacmanAnimatie+0x4e>
+ 2b6:	07 c0       	rjmp	.+14     	; 0x2c6 <PacmanAnimatie+0x164>
+				}
+			}
+			break;
+		} 
+
+		wait(500);
+ 2b8:	84 ef       	ldi	r24, 0xF4	; 244
+ 2ba:	91 e0       	ldi	r25, 0x01	; 1
+ 2bc:	27 df       	rcall	.-434    	; 0x10c <wait>
+ 2be:	78 cf       	rjmp	.-272    	; 0x1b0 <PacmanAnimatie+0x4e>
+ 2c0:	84 ef       	ldi	r24, 0xF4	; 244
+ 2c2:	91 e0       	ldi	r25, 0x01	; 1
+ 2c4:	23 df       	rcall	.-442    	; 0x10c <wait>
 	}
 }
- 10c:	10 92 71 00 	sts	0x0071, r1
- 110:	80 e2       	ldi	r24, 0x20	; 32
- 112:	80 93 70 00 	sts	0x0070, r24
- 116:	08 95       	ret
+ 2c6:	df 91       	pop	r29
+ 2c8:	cf 91       	pop	r28
+ 2ca:	1f 91       	pop	r17
+ 2cc:	0f 91       	pop	r16
+ 2ce:	ff 90       	pop	r15
+ 2d0:	ef 90       	pop	r14
+ 2d2:	df 90       	pop	r13
+ 2d4:	cf 90       	pop	r12
+ 2d6:	bf 90       	pop	r11
+ 2d8:	af 90       	pop	r10
+ 2da:	9f 90       	pop	r9
+ 2dc:	8f 90       	pop	r8
+ 2de:	7f 90       	pop	r7
+ 2e0:	6f 90       	pop	r6
+ 2e2:	5f 90       	pop	r5
+ 2e4:	08 95       	ret
 
-00000118 <twi_start>:
- 118:	84 ea       	ldi	r24, 0xA4	; 164
- 11a:	80 93 74 00 	sts	0x0074, r24
- 11e:	e4 e7       	ldi	r30, 0x74	; 116
- 120:	f0 e0       	ldi	r31, 0x00	; 0
- 122:	80 81       	ld	r24, Z
- 124:	88 23       	and	r24, r24
- 126:	ec f7       	brge	.-6      	; 0x122 <twi_start+0xa>
- 128:	08 95       	ret
-
-0000012a <twi_tx>:
- 12a:	80 93 73 00 	sts	0x0073, r24
- 12e:	84 e8       	ldi	r24, 0x84	; 132
- 130:	80 93 74 00 	sts	0x0074, r24
- 134:	e4 e7       	ldi	r30, 0x74	; 116
- 136:	f0 e0       	ldi	r31, 0x00	; 0
- 138:	80 81       	ld	r24, Z
- 13a:	88 23       	and	r24, r24
- 13c:	ec f7       	brge	.-6      	; 0x138 <twi_tx+0xe>
- 13e:	08 95       	ret
-
-00000140 <smileyblij>:
- 140:	af 92       	push	r10
- 142:	bf 92       	push	r11
- 144:	cf 92       	push	r12
- 146:	df 92       	push	r13
- 148:	ff 92       	push	r15
- 14a:	0f 93       	push	r16
- 14c:	1f 93       	push	r17
- 14e:	cf 93       	push	r28
- 150:	df 93       	push	r29
- 152:	00 e0       	ldi	r16, 0x00	; 0
- 154:	11 e0       	ldi	r17, 0x01	; 1
- 156:	0f 2e       	mov	r0, r31
- 158:	f8 e0       	ldi	r31, 0x08	; 8
- 15a:	af 2e       	mov	r10, r31
- 15c:	f1 e0       	ldi	r31, 0x01	; 1
- 15e:	bf 2e       	mov	r11, r31
- 160:	f0 2d       	mov	r31, r0
- 162:	c0 e0       	ldi	r28, 0x00	; 0
- 164:	d0 e0       	ldi	r29, 0x00	; 0
- 166:	0f 2e       	mov	r0, r31
- 168:	f4 e7       	ldi	r31, 0x74	; 116
- 16a:	cf 2e       	mov	r12, r31
- 16c:	d1 2c       	mov	r13, r1
- 16e:	f0 2d       	mov	r31, r0
- 170:	0f 2e       	mov	r0, r31
- 172:	f4 e9       	ldi	r31, 0x94	; 148
- 174:	ff 2e       	mov	r15, r31
- 176:	f0 2d       	mov	r31, r0
- 178:	cf df       	rcall	.-98     	; 0x118 <twi_start>
- 17a:	80 ee       	ldi	r24, 0xE0	; 224
- 17c:	90 e0       	ldi	r25, 0x00	; 0
- 17e:	d5 df       	rcall	.-86     	; 0x12a <twi_tx>
- 180:	ce 01       	movw	r24, r28
- 182:	d3 df       	rcall	.-90     	; 0x12a <twi_tx>
- 184:	f8 01       	movw	r30, r16
- 186:	81 91       	ld	r24, Z+
- 188:	8f 01       	movw	r16, r30
- 18a:	90 e0       	ldi	r25, 0x00	; 0
- 18c:	ce df       	rcall	.-100    	; 0x12a <twi_tx>
- 18e:	f6 01       	movw	r30, r12
- 190:	f0 82       	st	Z, r15
- 192:	22 96       	adiw	r28, 0x02	; 2
- 194:	0a 15       	cp	r16, r10
- 196:	1b 05       	cpc	r17, r11
- 198:	79 f7       	brne	.-34     	; 0x178 <smileyblij+0x38>
- 19a:	df 91       	pop	r29
- 19c:	cf 91       	pop	r28
- 19e:	1f 91       	pop	r17
- 1a0:	0f 91       	pop	r16
- 1a2:	ff 90       	pop	r15
- 1a4:	df 90       	pop	r13
- 1a6:	cf 90       	pop	r12
- 1a8:	bf 90       	pop	r11
- 1aa:	af 90       	pop	r10
- 1ac:	08 95       	ret
-
-000001ae <initall>:
+000002e6 <initall>:
 
 void initall()
 {
- 1ae:	1f 93       	push	r17
- 1b0:	cf 93       	push	r28
- 1b2:	df 93       	push	r29
+ 2e6:	1f 93       	push	r17
+ 2e8:	cf 93       	push	r28
+ 2ea:	df 93       	push	r29
 	init();
- 1b4:	9b df       	rcall	.-202    	; 0xec <init>
+ 2ec:	ff de       	rcall	.-514    	; 0xec <init>
 	spi_masterInit(); // Initialize spi module
- 1b6:	31 d0       	rcall	.+98     	; 0x21a <spi_masterInit>
+ 2ee:	31 d0       	rcall	.+98     	; 0x352 <spi_masterInit>
 	displayDriverInit(); // Initialize display chip
- 1b8:	52 d0       	rcall	.+164    	; 0x25e <displayDriverInit>
+ 2f0:	52 d0       	rcall	.+164    	; 0x396 <displayDriverInit>
 	twi_init();		// Init TWI interface
- 1ba:	a8 df       	rcall	.-176    	; 0x10c <twi_init>
+ 2f2:	1d df       	rcall	.-454    	; 0x12e <twi_init>
 
 	// Init HT16K22.
 	twi_start();
- 1bc:	ad df       	rcall	.-166    	; 0x118 <twi_start>
+ 2f4:	22 df       	rcall	.-444    	; 0x13a <twi_start>
 	twi_tx(0xE0);	// Display I2C addres + R/W bit
- 1be:	80 ee       	ldi	r24, 0xE0	; 224
- 1c0:	90 e0       	ldi	r25, 0x00	; 0
- 1c2:	b3 df       	rcall	.-154    	; 0x12a <twi_tx>
+ 2f6:	80 ee       	ldi	r24, 0xE0	; 224
+ 2f8:	90 e0       	ldi	r25, 0x00	; 0
+ 2fa:	28 df       	rcall	.-432    	; 0x14c <twi_tx>
 	twi_tx(0x21);	// Internal osc on
- 1c4:	81 e2       	ldi	r24, 0x21	; 33
- 1c6:	90 e0       	ldi	r25, 0x00	; 0
- 1c8:	b0 df       	rcall	.-160    	; 0x12a <twi_tx>
+ 2fc:	81 e2       	ldi	r24, 0x21	; 33
+ 2fe:	90 e0       	ldi	r25, 0x00	; 0
+ 300:	25 df       	rcall	.-438    	; 0x14c <twi_tx>
 	while( 0x00 == (TWCR & 0x80) );
 }
 
 void twi_stop(void)
 {
 	TWCR = (0x80 | 0x10 | 0x04);
- 1ca:	c4 e7       	ldi	r28, 0x74	; 116
- 1cc:	d0 e0       	ldi	r29, 0x00	; 0
- 1ce:	14 e9       	ldi	r17, 0x94	; 148
- 1d0:	18 83       	st	Y, r17
+ 302:	c4 e7       	ldi	r28, 0x74	; 116
+ 304:	d0 e0       	ldi	r29, 0x00	; 0
+ 306:	14 e9       	ldi	r17, 0x94	; 148
+ 308:	18 83       	st	Y, r17
 	twi_start();
 	twi_tx(0xE0);	// Display I2C addres + R/W bit
 	twi_tx(0x21);	// Internal osc on
 	twi_stop();
 
 	twi_start();
- 1d2:	a2 df       	rcall	.-188    	; 0x118 <twi_start>
+ 30a:	17 df       	rcall	.-466    	; 0x13a <twi_start>
 	twi_tx(0xE0);	// Display I2C address + R/W bit
- 1d4:	80 ee       	ldi	r24, 0xE0	; 224
- 1d6:	90 e0       	ldi	r25, 0x00	; 0
- 1d8:	a8 df       	rcall	.-176    	; 0x12a <twi_tx>
+ 30c:	80 ee       	ldi	r24, 0xE0	; 224
+ 30e:	90 e0       	ldi	r25, 0x00	; 0
+ 310:	1d df       	rcall	.-454    	; 0x14c <twi_tx>
 	twi_tx(0xA0);	// HT16K33 pins all output
- 1da:	80 ea       	ldi	r24, 0xA0	; 160
- 1dc:	90 e0       	ldi	r25, 0x00	; 0
- 1de:	a5 df       	rcall	.-182    	; 0x12a <twi_tx>
+ 312:	80 ea       	ldi	r24, 0xA0	; 160
+ 314:	90 e0       	ldi	r25, 0x00	; 0
+ 316:	1a df       	rcall	.-460    	; 0x14c <twi_tx>
 	while( 0x00 == (TWCR & 0x80) );
 }
 
 void twi_stop(void)
 {
 	TWCR = (0x80 | 0x10 | 0x04);
- 1e0:	18 83       	st	Y, r17
+ 318:	18 83       	st	Y, r17
 	twi_start();
 	twi_tx(0xE0);	// Display I2C address + R/W bit
 	twi_tx(0xA0);	// HT16K33 pins all output
 	twi_stop();
 
 	twi_start();
- 1e2:	9a df       	rcall	.-204    	; 0x118 <twi_start>
+ 31a:	0f df       	rcall	.-482    	; 0x13a <twi_start>
 	twi_tx(0xE0);	// Display I2C address + R/W bit
- 1e4:	80 ee       	ldi	r24, 0xE0	; 224
- 1e6:	90 e0       	ldi	r25, 0x00	; 0
- 1e8:	a0 df       	rcall	.-192    	; 0x12a <twi_tx>
+ 31c:	80 ee       	ldi	r24, 0xE0	; 224
+ 31e:	90 e0       	ldi	r25, 0x00	; 0
+ 320:	15 df       	rcall	.-470    	; 0x14c <twi_tx>
 	twi_tx(0xE3);	// Display Dimming 4/16 duty cycle
- 1ea:	83 ee       	ldi	r24, 0xE3	; 227
- 1ec:	90 e0       	ldi	r25, 0x00	; 0
- 1ee:	9d df       	rcall	.-198    	; 0x12a <twi_tx>
+ 322:	83 ee       	ldi	r24, 0xE3	; 227
+ 324:	90 e0       	ldi	r25, 0x00	; 0
+ 326:	12 df       	rcall	.-476    	; 0x14c <twi_tx>
 	while( 0x00 == (TWCR & 0x80) );
 }
 
 void twi_stop(void)
 {
 	TWCR = (0x80 | 0x10 | 0x04);
- 1f0:	18 83       	st	Y, r17
+ 328:	18 83       	st	Y, r17
 	twi_start();
 	twi_tx(0xE0);	// Display I2C address + R/W bit
 	twi_tx(0xE3);	// Display Dimming 4/16 duty cycle
 	twi_stop();
 
 	twi_start();
- 1f2:	92 df       	rcall	.-220    	; 0x118 <twi_start>
+ 32a:	07 df       	rcall	.-498    	; 0x13a <twi_start>
 	twi_tx(0xE0);	// Display I2C address + R/W bit
- 1f4:	80 ee       	ldi	r24, 0xE0	; 224
- 1f6:	90 e0       	ldi	r25, 0x00	; 0
- 1f8:	98 df       	rcall	.-208    	; 0x12a <twi_tx>
+ 32c:	80 ee       	ldi	r24, 0xE0	; 224
+ 32e:	90 e0       	ldi	r25, 0x00	; 0
+ 330:	0d df       	rcall	.-486    	; 0x14c <twi_tx>
 	twi_tx(0x81);	// Display OFF - Blink On
- 1fa:	81 e8       	ldi	r24, 0x81	; 129
- 1fc:	90 e0       	ldi	r25, 0x00	; 0
- 1fe:	95 df       	rcall	.-214    	; 0x12a <twi_tx>
+ 332:	81 e8       	ldi	r24, 0x81	; 129
+ 334:	90 e0       	ldi	r25, 0x00	; 0
+ 336:	0a df       	rcall	.-492    	; 0x14c <twi_tx>
 	while( 0x00 == (TWCR & 0x80) );
 }
 
 void twi_stop(void)
 {
 	TWCR = (0x80 | 0x10 | 0x04);
- 200:	18 83       	st	Y, r17
+ 338:	18 83       	st	Y, r17
 
 	twi_start();
 	twi_tx(0xE0);	// Display I2C address + R/W bit
 	twi_tx(0x81);	// Display OFF - Blink On
 	twi_stop();
 }
- 202:	df 91       	pop	r29
- 204:	cf 91       	pop	r28
- 206:	1f 91       	pop	r17
- 208:	08 95       	ret
+ 33a:	df 91       	pop	r29
+ 33c:	cf 91       	pop	r28
+ 33e:	1f 91       	pop	r17
+ 340:	08 95       	ret
 
-0000020a <main>:
+00000342 <main>:
 
 void main( void )
 {
 	DDRD = 0b11111111;
- 20a:	8f ef       	ldi	r24, 0xFF	; 255
- 20c:	81 bb       	out	0x11, r24	; 17
+ 342:	8f ef       	ldi	r24, 0xFF	; 255
+ 344:	81 bb       	out	0x11, r24	; 17
 	DDRC = 0xFF;
- 20e:	84 bb       	out	0x14, r24	; 20
+ 346:	84 bb       	out	0x14, r24	; 20
 	DDRB=0x01; // Set PB0 pin as output for display select
- 210:	81 e0       	ldi	r24, 0x01	; 1
- 212:	87 bb       	out	0x17, r24	; 23
+ 348:	81 e0       	ldi	r24, 0x01	; 1
+ 34a:	87 bb       	out	0x17, r24	; 23
 	initall();
- 214:	cc df       	rcall	.-104    	; 0x1ae <initall>
+ 34c:	cc df       	rcall	.-104    	; 0x2e6 <initall>
 	
 	while (1)
 	{
-		smileyblij();
- 216:	94 df       	rcall	.-216    	; 0x140 <smileyblij>
+		PacmanAnimatie();
+ 34e:	09 df       	rcall	.-494    	; 0x162 <PacmanAnimatie>
 	}
- 218:	fe cf       	rjmp	.-4      	; 0x216 <main+0xc>
+ 350:	fe cf       	rjmp	.-4      	; 0x34e <main+0xc>
 
-0000021a <spi_masterInit>:
- 21a:	8f ef       	ldi	r24, 0xFF	; 255
- 21c:	87 bb       	out	0x17, r24	; 23
- 21e:	bb 98       	cbi	0x17, 3	; 23
- 220:	c0 9a       	sbi	0x18, 0	; 24
- 222:	82 e5       	ldi	r24, 0x52	; 82
- 224:	8d b9       	out	0x0d, r24	; 13
- 226:	08 95       	ret
+00000352 <spi_masterInit>:
+ {
+	 SPDR = data; // Load byte --> starts transmission
+	 while( !(SPSR & BIT(SPIF)) ); // Wait for transmission complete
+	 data = SPDR; // New received data (eventually, MISO) in SPDR
+	 return data; // Return received byte
+ }
+ 352:	8f ef       	ldi	r24, 0xFF	; 255
+ 354:	87 bb       	out	0x17, r24	; 23
+ 356:	bb 98       	cbi	0x17, 3	; 23
+ 358:	c0 9a       	sbi	0x18, 0	; 24
+ 35a:	82 e5       	ldi	r24, 0x52	; 82
+ 35c:	8d b9       	out	0x0d, r24	; 13
+ 35e:	08 95       	ret
 
-00000228 <spi_write>:
- 228:	8f b9       	out	0x0f, r24	; 15
- 22a:	77 9b       	sbis	0x0e, 7	; 14
- 22c:	fe cf       	rjmp	.-4      	; 0x22a <spi_write+0x2>
- 22e:	08 95       	ret
+00000360 <spi_write>:
+ 360:	8f b9       	out	0x0f, r24	; 15
+ 362:	77 9b       	sbis	0x0e, 7	; 14
+ 364:	fe cf       	rjmp	.-4      	; 0x362 <spi_write+0x2>
+ 366:	08 95       	ret
 
-00000230 <spi_slaveSelect>:
- 230:	98 b3       	in	r25, 0x18	; 24
- 232:	21 e0       	ldi	r18, 0x01	; 1
- 234:	30 e0       	ldi	r19, 0x00	; 0
- 236:	02 c0       	rjmp	.+4      	; 0x23c <spi_slaveSelect+0xc>
- 238:	22 0f       	add	r18, r18
- 23a:	33 1f       	adc	r19, r19
- 23c:	8a 95       	dec	r24
- 23e:	e2 f7       	brpl	.-8      	; 0x238 <spi_slaveSelect+0x8>
- 240:	20 95       	com	r18
- 242:	29 23       	and	r18, r25
- 244:	28 bb       	out	0x18, r18	; 24
- 246:	08 95       	ret
+00000368 <spi_slaveSelect>:
+ // Select device on pinnumer PORTB
+ void spi_slaveSelect(unsigned char chipNumber)
+ {
+	 PORTB &= ~BIT(chipNumber);
+ 368:	98 b3       	in	r25, 0x18	; 24
+ 36a:	21 e0       	ldi	r18, 0x01	; 1
+ 36c:	30 e0       	ldi	r19, 0x00	; 0
+ 36e:	02 c0       	rjmp	.+4      	; 0x374 <spi_slaveSelect+0xc>
+ 370:	22 0f       	add	r18, r18
+ 372:	33 1f       	adc	r19, r19
+ 374:	8a 95       	dec	r24
+ 376:	e2 f7       	brpl	.-8      	; 0x370 <spi_slaveSelect+0x8>
+ 378:	20 95       	com	r18
+ 37a:	29 23       	and	r18, r25
+ 37c:	28 bb       	out	0x18, r18	; 24
+ 37e:	08 95       	ret
 
-00000248 <spi_slaveDeSelect>:
- 248:	98 b3       	in	r25, 0x18	; 24
- 24a:	21 e0       	ldi	r18, 0x01	; 1
- 24c:	30 e0       	ldi	r19, 0x00	; 0
- 24e:	02 c0       	rjmp	.+4      	; 0x254 <spi_slaveDeSelect+0xc>
- 250:	22 0f       	add	r18, r18
- 252:	33 1f       	adc	r19, r19
- 254:	8a 95       	dec	r24
- 256:	e2 f7       	brpl	.-8      	; 0x250 <spi_slaveDeSelect+0x8>
- 258:	29 2b       	or	r18, r25
- 25a:	28 bb       	out	0x18, r18	; 24
- 25c:	08 95       	ret
+00000380 <spi_slaveDeSelect>:
+ }
+ // Deselect device on pinnumer PORTB
+ void spi_slaveDeSelect(unsigned char chipNumber)
+ {
+	 PORTB |= BIT(chipNumber);
+ 380:	98 b3       	in	r25, 0x18	; 24
+ 382:	21 e0       	ldi	r18, 0x01	; 1
+ 384:	30 e0       	ldi	r19, 0x00	; 0
+ 386:	02 c0       	rjmp	.+4      	; 0x38c <spi_slaveDeSelect+0xc>
+ 388:	22 0f       	add	r18, r18
+ 38a:	33 1f       	adc	r19, r19
+ 38c:	8a 95       	dec	r24
+ 38e:	e2 f7       	brpl	.-8      	; 0x388 <spi_slaveDeSelect+0x8>
+ 390:	29 2b       	or	r18, r25
+ 392:	28 bb       	out	0x18, r18	; 24
+ 394:	08 95       	ret
 
-0000025e <displayDriverInit>:
- 25e:	80 e0       	ldi	r24, 0x00	; 0
- 260:	e7 df       	rcall	.-50     	; 0x230 <spi_slaveSelect>
- 262:	89 e0       	ldi	r24, 0x09	; 9
- 264:	e1 df       	rcall	.-62     	; 0x228 <spi_write>
- 266:	8f ef       	ldi	r24, 0xFF	; 255
- 268:	df df       	rcall	.-66     	; 0x228 <spi_write>
- 26a:	80 e0       	ldi	r24, 0x00	; 0
- 26c:	ed df       	rcall	.-38     	; 0x248 <spi_slaveDeSelect>
- 26e:	80 e0       	ldi	r24, 0x00	; 0
- 270:	df df       	rcall	.-66     	; 0x230 <spi_slaveSelect>
- 272:	8a e0       	ldi	r24, 0x0A	; 10
- 274:	d9 df       	rcall	.-78     	; 0x228 <spi_write>
- 276:	8f e0       	ldi	r24, 0x0F	; 15
- 278:	d7 df       	rcall	.-82     	; 0x228 <spi_write>
- 27a:	80 e0       	ldi	r24, 0x00	; 0
- 27c:	e5 df       	rcall	.-54     	; 0x248 <spi_slaveDeSelect>
- 27e:	80 e0       	ldi	r24, 0x00	; 0
- 280:	d7 df       	rcall	.-82     	; 0x230 <spi_slaveSelect>
- 282:	8b e0       	ldi	r24, 0x0B	; 11
- 284:	d1 df       	rcall	.-94     	; 0x228 <spi_write>
- 286:	84 e0       	ldi	r24, 0x04	; 4
- 288:	cf df       	rcall	.-98     	; 0x228 <spi_write>
- 28a:	80 e0       	ldi	r24, 0x00	; 0
- 28c:	dd df       	rcall	.-70     	; 0x248 <spi_slaveDeSelect>
- 28e:	80 e0       	ldi	r24, 0x00	; 0
- 290:	cf df       	rcall	.-98     	; 0x230 <spi_slaveSelect>
- 292:	8c e0       	ldi	r24, 0x0C	; 12
- 294:	c9 df       	rcall	.-110    	; 0x228 <spi_write>
- 296:	81 e0       	ldi	r24, 0x01	; 1
- 298:	c7 df       	rcall	.-114    	; 0x228 <spi_write>
- 29a:	80 e0       	ldi	r24, 0x00	; 0
- 29c:	d5 cf       	rjmp	.-86     	; 0x248 <spi_slaveDeSelect>
- 29e:	08 95       	ret
+00000396 <displayDriverInit>:
+ }
+ void displayDriverInit()
+ {
+	 spi_slaveSelect(0); // Select display chip (MAX7219)
+ 396:	80 e0       	ldi	r24, 0x00	; 0
+ 398:	e7 df       	rcall	.-50     	; 0x368 <spi_slaveSelect>
+	 spi_write(0x09); // Register 09: Decode Mode
+ 39a:	89 e0       	ldi	r24, 0x09	; 9
+ 39c:	e1 df       	rcall	.-62     	; 0x360 <spi_write>
+	 spi_write(0xFF); // -> 1's = BCD mode for all digits
+ 39e:	8f ef       	ldi	r24, 0xFF	; 255
+ 3a0:	df df       	rcall	.-66     	; 0x360 <spi_write>
+	 spi_slaveDeSelect(0); // Deselect display chip
+ 3a2:	80 e0       	ldi	r24, 0x00	; 0
+ 3a4:	ed df       	rcall	.-38     	; 0x380 <spi_slaveDeSelect>
+	 spi_slaveSelect(0); // Select dispaly chip
+ 3a6:	80 e0       	ldi	r24, 0x00	; 0
+ 3a8:	df df       	rcall	.-66     	; 0x368 <spi_slaveSelect>
+	 spi_write(0x0A); // Register 0A: Intensity
+ 3aa:	8a e0       	ldi	r24, 0x0A	; 10
+ 3ac:	d9 df       	rcall	.-78     	; 0x360 <spi_write>
+	 spi_write(0x0F); // -> Level 4 (in range [1..F]) ----------->kan tot F staat er dus staat nu op F
+ 3ae:	8f e0       	ldi	r24, 0x0F	; 15
+ 3b0:	d7 df       	rcall	.-82     	; 0x360 <spi_write>
+	 spi_slaveDeSelect(0); // Deselect display chip
+ 3b2:	80 e0       	ldi	r24, 0x00	; 0
+ 3b4:	e5 df       	rcall	.-54     	; 0x380 <spi_slaveDeSelect>
+	 spi_slaveSelect(0); // Select display chip
+ 3b6:	80 e0       	ldi	r24, 0x00	; 0
+ 3b8:	d7 df       	rcall	.-82     	; 0x368 <spi_slaveSelect>
+	 spi_write(0x0B); // Register 0B: Scan-limit
+ 3ba:	8b e0       	ldi	r24, 0x0B	; 11
+ 3bc:	d1 df       	rcall	.-94     	; 0x360 <spi_write>
+	 spi_write(0x04); // -> 1 = Display digits 0..1   -----------> hier is naar 4 veranderd zodat er 4 geschreven kunnen worden
+ 3be:	84 e0       	ldi	r24, 0x04	; 4
+ 3c0:	cf df       	rcall	.-98     	; 0x360 <spi_write>
+	 spi_slaveDeSelect(0); // Deselect display chip
+ 3c2:	80 e0       	ldi	r24, 0x00	; 0
+ 3c4:	dd df       	rcall	.-70     	; 0x380 <spi_slaveDeSelect>
+	 spi_slaveSelect(0); // Select display chip
+ 3c6:	80 e0       	ldi	r24, 0x00	; 0
+ 3c8:	cf df       	rcall	.-98     	; 0x368 <spi_slaveSelect>
+	 spi_write(0x0C); // Register 0B: Shutdown register
+ 3ca:	8c e0       	ldi	r24, 0x0C	; 12
+ 3cc:	c9 df       	rcall	.-110    	; 0x360 <spi_write>
+	 spi_write(0x01); // -> 1 = Normal operation
+ 3ce:	81 e0       	ldi	r24, 0x01	; 1
+ 3d0:	c7 df       	rcall	.-114    	; 0x360 <spi_write>
+	 spi_slaveDeSelect(0); // Deselect display chip
+ 3d2:	80 e0       	ldi	r24, 0x00	; 0
+ 3d4:	d5 cf       	rjmp	.-86     	; 0x380 <spi_slaveDeSelect>
+ 3d6:	08 95       	ret
 
-000002a0 <_exit>:
- 2a0:	f8 94       	cli
+000003d8 <_exit>:
+ 3d8:	f8 94       	cli
 
-000002a2 <__stop_program>:
- 2a2:	ff cf       	rjmp	.-2      	; 0x2a2 <__stop_program>
+000003da <__stop_program>:
+ 3da:	ff cf       	rjmp	.-2      	; 0x3da <__stop_program>

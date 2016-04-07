@@ -4,6 +4,8 @@
 #include "lcd.h"
 #include "Spi.h"
 
+#define F_CPU 8000000;
+
 static int check = 0;
 static int running = 0;
 static int runningstate = 0;
@@ -17,69 +19,86 @@ typedef struct
 } 
 PATTERN_STRUCT;
 
-PATTERN_STRUCT smileys[] = 
+PATTERN_STRUCT pacman[] = 
 {
-	//smileyblij
-	  {30}, {33}, {210}, {192}, {210}, {204}, {33}, {30}
-	//smiley neutraal
-	, {30} , {33}  , {210}  , {192}  , {222}  , {192}  , {33} , {30}
-
-	//smiley niet blij
-	, {30} 	, {33}	, {210}	, {192}	, {204}	, {210}	, {33}	, {30}
+	//mond open
+	{62}, {127}, {189}, {159}, {143}, {191}, {127}, {62},
+	//mond 2/3 open
+	{30}, {63}, {253}, {159}, {143}, {255}, {63}, {30},
+	//mond 1/3 open
+	{30}, {63}, {253}, {255}, {159}, {255}, {63}, {30},
+	//mond dicht
+	{30}, {63}, {253}, {255}, {255}, {255}, {63}, {30}
 };
 
-void smileyblij(void)
+void PacmanAnimatie()
 {
-	int x = 0;
-	for (int adres = 0; adres <= 14; adres += 2)
+	for (int i = 0; i < 3; i ++)
 	{
-		twi_start();
-		twi_tx(0xE0);	// Display I2C addres + R/W bit
-		twi_tx(adres);	// Address
-		twi_tx(smileys[x].data);	// data
-		twi_stop();
-		x++;
-	}
-}
+		switch (i)
+		{
+			case 0: 
+				{
+					int x = 0;
+					for (int adres = 0; adres <= 14; adres += 2)
+					{
+						twi_start();
+						twi_tx(0xE0);	// Display I2C addres + R/W bit
+						twi_tx(adres);	// Address
+						twi_tx(pacman[x].data);	// data
+						twi_stop();
+						x++;
+					}
+				}
+			break;
 
-void smileyneut(void)
-{
-	int x = 8;
+			case 1:
+			{
+				int x = 8;
+				for (int adres = 0; adres <= 14; adres += 2)
+				{
+					twi_start();
+					twi_tx(0xE0);	// Display I2C addres + R/W bit
+					twi_tx(adres);	// Address
+					twi_tx(pacman[x].data);	// data
+					twi_stop();
+					x++;
+				}
+			}
+			break;
 
-	for (int adres = 0; adres <= 14; adres += 2)
-	{
-		twi_start();
-		twi_tx(0xE0);	// Display I2C addres + R/W bit
-		twi_tx(adres);	// Address
-		twi_tx(smileys[x].data);	// data
-		twi_stop();
-		x++;
-	}
-}
+			case 2:
+			{
+				int x = 16;
+				for (int adres = 0; adres <= 14; adres += 2)
+				{
+					twi_start();
+					twi_tx(0xE0);	// Display I2C addres + R/W bit
+					twi_tx(adres);	// Address
+					twi_tx(pacman[x].data);	// data
+					twi_stop();
+					x++;
+				}
+			}
+			break;
 
-void smileyniet(void)
-{
-	int x = 16;
-	for (int adres = 0; adres <= 14; adres += 2)
-	{
-		twi_start();
-		twi_tx(0xE0);	// Display I2C addres + R/W bit
-		twi_tx(adres);	// Address
-		twi_tx(smileys[x].data);	// data
-		twi_stop();
-		x++;
-	}
-}
+			case 3:
+			{
+				int x = 24;
+				for (int adres = 0; adres <= 14; adres += 2)
+				{
+					twi_start();
+					twi_tx(0xE0);	// Display I2C addres + R/W bit
+					twi_tx(adres);	// Address
+					twi_tx(pacman[x].data);	// data
+					twi_stop();
+					x++;
+				}
+			}
+			break;
+		} 
 
-void clearmatrix(void)
-{
-	for (int adres = 0; adres <= 14; adres += 2)
-	{
-		twi_start();
-		twi_tx(0xE0);	// Display I2C addres + R/W bit
-		twi_tx(adres);	// Address
-		twi_tx(0);	// data
-		twi_stop();
+		wait(500);
 	}
 }
 
@@ -121,7 +140,7 @@ void main( void )
 	
 	while (1)
 	{
-		smileyblij();
+		PacmanAnimatie();
 	}
 }
 
@@ -156,4 +175,3 @@ void twi_tx(unsigned char data)
 	TWCR = (0x80 | 0x04);
 	while( 0 == (TWCR & 0x80) );
 }
-
